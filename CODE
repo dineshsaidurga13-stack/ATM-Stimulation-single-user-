@@ -1,0 +1,123 @@
+package com.atmproject;
+
+import java.util.Scanner;
+
+class ATMSimulation {
+	private double balance; // Stores the user’s account balance.
+	private final String pin = "1234";// Stores a fixed PIN for authentication. Marked as final because it cannot
+										// change.
+	private String[] transactionHistory;// Array to store transaction details.
+	private int transactionCount; // Keeps track of the number of transactions made.
+
+	public ATMSimulation(double initialBalance) {
+		this.balance = initialBalance;// Initializes the balance with the amount passed.
+		this.transactionHistory = new String[100];// Initializes transactionHistory array with 100 slots.
+		this.transactionCount = 0;// Sets transactionCount to 0
+		addTransaction("ACCOUNT CREATED WITH BALANCE: Rs " + initialBalance);// Adds the first transaction (account
+																				// creation) automatically.
+	}
+
+	private void addTransaction(String detail) { // Stores transaction details in the array.
+		if (transactionCount < transactionHistory.length) { // Ensures we don’t exceed the array limit
+			transactionHistory[transactionCount++] = detail; // transactionCount++ increments the count after storing
+																// the transaction.
+		}
+	}
+
+	public boolean verifyPin(String enteredPin) { // Checks if the entered PIN matches the stored PIN.
+		return pin.equals(enteredPin); // Returns true if correct, false if incorrect.
+	}
+
+	public void checkBalance() { // Simply prints the current balance to the console.
+		System.out.println("YOUR CURRENT BALANCE IS: Rs " + balance);
+	}
+
+	public void deposit(double amount) { // Checks if the deposit amount is positive
+		if (amount > 0) { // Adds the amount to balance.
+			balance += amount; // Records transaction history.
+			addTransaction("Deposited: Rs " + amount + " | Balance: Rs " + balance);// Prints success or error message.
+			System.out.println("Successfully Deposited Rs " + amount);
+		} else {
+			System.out.println("Invalid Deposit Amount");
+		}
+	}
+
+	public void withdraw(double amount) { // Checks if the withdrawal is valid.
+		if (amount > 0 && amount <= balance) { // Deducts amount from balance.
+			balance -= amount; // Records the transaction.
+			addTransaction("Withdrawn: Rs " + amount + " | Balance: Rs " + balance);// Prints success or error message.
+			System.out.println("Successfully Withdrawn Rs " + amount);
+		} else {
+			System.out.println("Insufficient Balance or Invalid Amount");
+		}
+	}
+
+	public void showTransactionHistory() {
+		System.out.println("\n--- Transaction History ---"); // Loops through transaction history array and prints all
+																// transactions
+		for (int i = 0; i < transactionCount; i++) {
+			System.out.println(transactionHistory[i]);
+		}
+	}
+}
+
+public class ATM {
+	public static void main(String[] args) { // Main method is the program entry point.
+		Scanner sc = new Scanner(System.in); // Scanner sc → Reads user input.
+		ATMSimulation atm = new ATMSimulation(5000); // Creates atm object with initial balance Rs 5000.
+
+		System.out.print("Enter Your Pin: "); // Prompts user for PIN.
+		String enteredPin = sc.nextLine();
+
+		if (!atm.verifyPin(enteredPin)) { // Verifies PIN using verifyPin.
+			System.out.println("Incorrect Pin... Exiting!"); // Exits program if PIN is incorrect.
+			sc.close();
+			return;
+		}
+
+		int choice;
+		do {
+			System.out.println("\n=== ATM MENU ===");
+			System.out.println("1. Check Balance");
+			System.out.println("2. Deposit Money"); // Shows the ATM menu in a loop.
+			System.out.println("3. Withdraw Money"); // Reads user choice.
+			System.out.println("4. Transaction History");
+			System.out.println("5. Exit");
+			System.out.print("Enter Your Choice: ");
+
+			choice = sc.nextInt();
+
+			switch (choice) { // Executes ATM operations based on user choice.
+			case 1:
+				atm.checkBalance();
+				break;
+
+			case 2:
+				System.out.print("Enter Deposit Amount: ");
+				double depositAmount = sc.nextDouble();
+				atm.deposit(depositAmount);
+				break;
+			// Each case calls the respective method from ATMSimulation class.
+			case 3:
+				System.out.print("Enter Withdrawal Amount: ");
+				double withdrawAmount = sc.nextDouble();
+				atm.withdraw(withdrawAmount);
+				break;
+
+			case 4:
+				atm.showTransactionHistory();
+				break;
+
+			case 5:
+				System.out.println("Thank You For Using The ATM. Goodbye!");
+				break;
+
+			default:
+				System.out.println("Invalid Choice! Try Again."); // default handles invalid menu options.
+			}
+
+		} while (choice != 5);
+
+		sc.close();
+	}
+}
